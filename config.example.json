@@ -1,0 +1,25 @@
+{
+	"name": "Your Name",
+	"location": {
+		"latitude": 0.0,
+		"longitude": 0.0,
+		"label": "Your City, ST"
+	},
+	"temperatureUnit": "fahrenheit",
+	"modules": [
+		{ "id": "greeting", "enabled": true, "type": "core" },
+		{ "id": "weather", "enabled": true, "type": "core" },
+		{ "id": "stocks", "enabled": true, "type": "ancillary" },
+		{ "id": "crypto", "enabled": true, "type": "ancillary" },
+		{ "id": "news", "enabled": true, "type": "ancillary" },
+		{ "id": "financeNews", "enabled": true, "type": "ancillary" }
+	],
+	"stocks": [
+		{ "symbol": "AAPL", "name": "Apple", "type": "stock" },
+		{ "symbol": "GOOGL", "name": "Alphabet", "type": "stock" }
+	],
+	"crypto": [
+		{ "id": "bitcoin", "symbol": "BTC" },
+		{ "id": "ethereum", "symbol": "ETH" }
+	]
+}

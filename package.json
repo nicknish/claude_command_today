@@ -1,0 +1,26 @@
+{
+  "name": "claude-command-today",
+  "version": "1.0.0",
+  "description": "A Claude Code /today command that delivers a personal daily briefing",
+  "type": "module",
+  "scripts": {
+    "start": "npx tsx src/index.ts",
+    "build:types": "npx tsc --noEmit",
+    "lint": "npx biome check .",
+    "format": "npx biome format --write .",
+    "test": "vitest run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.13",
+    "@types/node": "^25.1.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  }
+}

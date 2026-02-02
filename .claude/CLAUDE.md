@@ -1,0 +1,1 @@
+- Don't run `npx biome` on individual files. Wait to run it on the entire project, then run `pnpm run format` and fix all issues at once.
