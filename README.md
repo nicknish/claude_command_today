@@ -52,17 +52,27 @@ cp config.example.json config.json
 ```json
 {
   "name": "Your Name",
-	"location": {
-		"latitude": 33.97943274232051,
-		"longitude": -118.46624346434118,
-		"label": "Venice Beach, CA",
-	},
+  "location": {
+    "latitude": 40.7128,
+    "longitude": -74.006,
+    "label": "New York, NY"
+  },
   "temperatureUnit": "fahrenheit",
-  "modules": ["greeting", "weather", "stocks", "crypto", "news", "finance-news"],
-  "stocks": ["TSLA", "AAPL"],
+  "modules": [
+    { "id": "greeting", "enabled": true, "type": "core" },
+    { "id": "weather", "enabled": true, "type": "core" },
+    { "id": "stocks", "enabled": true, "type": "ancillary" },
+    { "id": "crypto", "enabled": true, "type": "ancillary" },
+    { "id": "news", "enabled": true, "type": "ancillary" },
+    { "id": "financeNews", "enabled": true, "type": "ancillary" }
+  ],
+  "stocks": [
+    { "symbol": "AAPL", "name": "Apple", "type": "stock" },
+    { "symbol": "GOOGL", "name": "Alphabet", "type": "stock" }
+  ],
   "crypto": [
-    { "id": "bitcoin", "symbol": "BTC", "name": "Bitcoin" },
-    { "id": "ethereum", "symbol": "ETH", "name": "Ethereum" }
+    { "id": "bitcoin", "symbol": "BTC" },
+    { "id": "ethereum", "symbol": "ETH" }
   ]
 }
 ```
@@ -74,6 +84,22 @@ pnpm start
 ```
 
 Output is written to stdout as JSON and saved to `artifacts/` with a timestamped filename.
+
+## Claude Code Slash Command
+
+This project is designed to be used as a Claude Code [slash command](https://docs.anthropic.com/en/docs/claude-code/slash-commands). The app outputs raw JSON; a Claude Code skill handles formatting it into a rich daily digest.
+
+See [`today.example.md`](today.example.md) for an example skill file. To use it:
+
+1. Copy it to your Claude Code commands directory:
+
+```bash
+cp today.example.md ~/.claude/commands/today.md
+```
+
+2. Edit the `cd <path-to-claude-command-today>` line in the file to point to where you cloned this repo.
+
+3. Run `/today` in Claude Code.
 
 ## Development
 
