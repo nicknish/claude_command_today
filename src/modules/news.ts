@@ -62,15 +62,16 @@ function isValidTitle(title: string | null | undefined): title is string {
 	return trimmed.length > 0 && trimmed !== "[Removed]";
 }
 
+const MAX_ARTICLES_PER_CATEGORY = 8;
+
 function parseArticles(raw: NewsApiArticle[], category: NewsArticle["category"]): NewsArticle[] {
 	return raw
 		.filter((article) => isValidTitle(article.title))
+		.slice(0, MAX_ARTICLES_PER_CATEGORY)
 		.map((article) => ({
 			headline: article.title as string,
 			description: article.description ?? "",
-			sourceName: article.source.name,
-			sourceUrl: article.url,
-			publishedAt: article.publishedAt,
+			url: article.url,
 			category,
 		}));
 }

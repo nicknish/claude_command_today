@@ -40,15 +40,13 @@ export async function financeNewsModule(_config: AppConfig): Promise<ModuleResul
 		throw new Error(`Finnhub /news request failed with status ${response.status}`);
 	}
 
+	const MAX_ARTICLES = 10;
 	const items = (await response.json()) as FinnhubNewsItem[];
 
-	const articles: FinanceNewsArticle[] = items.map((item) => ({
+	const articles: FinanceNewsArticle[] = items.slice(0, MAX_ARTICLES).map((item) => ({
 		headline: item.headline,
 		summary: item.summary,
-		source: item.source,
 		url: item.url,
-		datetime: new Date(item.datetime * 1000).toISOString(),
-		category: item.category,
 	}));
 
 	const data: FinanceNewsModuleData = {

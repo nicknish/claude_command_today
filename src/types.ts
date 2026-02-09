@@ -103,9 +103,7 @@ export type CryptoModuleData = {
 export type NewsArticle = {
 	headline: string;
 	description: string;
-	sourceName: string;
-	sourceUrl: string;
-	publishedAt: string;
+	url: string;
 	category: "us" | "tech" | "business" | "crypto";
 };
 
@@ -116,10 +114,7 @@ export type NewsModuleData = {
 export type FinanceNewsArticle = {
 	headline: string;
 	summary: string;
-	source: string;
 	url: string;
-	datetime: string;
-	category: string;
 };
 
 export type FinanceNewsModuleData = {

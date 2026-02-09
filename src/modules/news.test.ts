@@ -83,9 +83,7 @@ describe("news module", () => {
 
 		expect(article.headline).toBe("Breaking News");
 		expect(article.description).toBe("Something happened.");
-		expect(article.sourceName).toBe("CNN");
-		expect(article.sourceUrl).toBe("https://cnn.com/article");
-		expect(article.publishedAt).toBe("2026-01-31T08:00:00Z");
+		expect(article.url).toBe("https://cnn.com/article");
 	});
 
 	it("filters out articles with null or empty titles", async () => {
