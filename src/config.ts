@@ -17,6 +17,7 @@ const defaults: AppConfig = {
 		{ id: "crypto", enabled: true, type: "ancillary" },
 		{ id: "news", enabled: true, type: "ancillary" },
 		{ id: "financeNews", enabled: true, type: "ancillary" },
+		{ id: "todoist", enabled: true, type: "ancillary" },
 	],
 	stocks: [{ symbol: "COIN", name: "Coinbase", type: "stock" }],
 	crypto: [{ id: "bitcoin", symbol: "BTC" }],

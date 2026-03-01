@@ -4,6 +4,7 @@ import { financeNewsModule } from "./modules/finance-news.js";
 import { greetingModule } from "./modules/greeting.js";
 import { newsModule } from "./modules/news.js";
 import { stocksModule } from "./modules/stocks.js";
+import { todoistModule } from "./modules/todoist.js";
 import { weatherModule } from "./modules/weather.js";
 import type { AppConfig, ModuleFn, ModuleResult } from "./types.js";
 
@@ -14,6 +15,7 @@ const moduleRegistry: Record<string, ModuleFn> = {
 	crypto: cryptoModule,
 	news: newsModule,
 	financeNews: financeNewsModule,
+	todoist: todoistModule,
 };
 
 export async function runModules(config: AppConfig): Promise<ModuleResult[]> {

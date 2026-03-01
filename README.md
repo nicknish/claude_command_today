@@ -12,6 +12,7 @@ Runs a set of configurable modules and outputs a consolidated JSON briefing:
 - **Crypto** — current prices (CoinGecko) with historical data (Alpaca)
 - **News** — top headlines across US, tech, business, and crypto categories (NewsAPI)
 - **Finance News** — market news from Finnhub
+- **Todoist** — P1 tasks due today or earlier, with a stale flag for items older than 14 days
 
 Modules are classified as **core** (greeting, weather) or **ancillary** (everything else). Core failures exit with an error; ancillary failures are logged and skipped gracefully.
 
@@ -46,6 +47,7 @@ cp config.example.json config.json
 | `ALPACA_SECRET_KEY` | [Alpaca](https://alpaca.markets/) |
 | `COINGECKO_API_KEY` | [CoinGecko](https://www.coingecko.com/en/api) |
 | `NEWSAPI_API_KEY` | [NewsAPI](https://newsapi.org/) |
+| `TODOIST_API_KEY` | [Todoist](https://developer.todoist.com/rest/v2/#authorization) |
 
 3. Edit `config.json` to customize your briefing:
 
@@ -64,7 +66,8 @@ cp config.example.json config.json
     { "id": "stocks", "enabled": true, "type": "ancillary" },
     { "id": "crypto", "enabled": true, "type": "ancillary" },
     { "id": "news", "enabled": true, "type": "ancillary" },
-    { "id": "financeNews", "enabled": true, "type": "ancillary" }
+    { "id": "financeNews", "enabled": true, "type": "ancillary" },
+    { "id": "todoist", "enabled": true, "type": "ancillary" }
   ],
   "stocks": [
     { "symbol": "AAPL", "name": "Apple", "type": "stock" },

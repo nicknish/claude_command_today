@@ -120,3 +120,23 @@ export type FinanceNewsArticle = {
 export type FinanceNewsModuleData = {
 	articles: FinanceNewsArticle[];
 };
+
+export type TodoistTask = {
+	id: string;
+	content: string;
+	description: string;
+	priority: number;
+	dueDate: string | null;
+	dueDatetime: string | null;
+	dueTimezone: string | null;
+	url: string;
+	createdAt: string;
+	projectId: string;
+	labels: string[];
+	isOlderThanTwoWeeks: boolean;
+};
+
+export type TodoistModuleData = {
+	tasks: TodoistTask[];
+	asOf: string;
+};

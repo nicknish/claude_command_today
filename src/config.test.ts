@@ -22,7 +22,7 @@ const fullConfig = {
 };
 
 const defaults = {
-	name: "Name",
+	name: "[Name]",
 	location: {
 		latitude: 33.97943274232051,
 		longitude: -118.46624346434118,
@@ -33,14 +33,13 @@ const defaults = {
 		{ id: "greeting", enabled: true, type: "core" },
 		{ id: "weather", enabled: true, type: "core" },
 		{ id: "stocks", enabled: true, type: "ancillary" },
+		{ id: "crypto", enabled: true, type: "ancillary" },
 		{ id: "news", enabled: true, type: "ancillary" },
+		{ id: "financeNews", enabled: true, type: "ancillary" },
+		{ id: "todoist", enabled: true, type: "ancillary" },
 	],
-	stocks: [
-		{ symbol: "TSLA", name: "Tesla", type: "stock" },
-		{ symbol: "MSTR", name: "MicroStrategy", type: "stock" },
-		{ symbol: "BTC", name: "Bitcoin", type: "crypto" },
-		{ symbol: "ETH", name: "Ethereum", type: "crypto" },
-	],
+	stocks: [{ symbol: "COIN", name: "Coinbase", type: "stock" }],
+	crypto: [{ id: "bitcoin", symbol: "BTC" }],
 };
 
 afterEach(() => {
