@@ -12,7 +12,7 @@ const defaults: AppConfig = {
 	temperatureUnit: "fahrenheit" as const,
 	modules: [
 		{ id: "greeting", enabled: true, type: "core" },
-		{ id: "weather", enabled: true, type: "core" },
+		{ id: "weather", enabled: true, type: "ancillary" },
 		{ id: "stocks", enabled: true, type: "ancillary" },
 		{ id: "crypto", enabled: true, type: "ancillary" },
 		{ id: "news", enabled: true, type: "ancillary" },

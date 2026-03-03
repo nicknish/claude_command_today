@@ -2,6 +2,31 @@ import type { AppConfig, ModuleResult, WeatherData } from "../types.js";
 import { getWeatherCondition } from "./weather-codes.js";
 
 const OPEN_METEO_BASE_URL = "https://api.open-meteo.com/v1/forecast";
+const MAX_RETRIES = 2;
+const INITIAL_BACKOFF_MS = 1000;
+
+async function fetchWithRetry(url: string): Promise<Response> {
+	let lastError: Error | undefined;
+
+	for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+		try {
+			const response = await fetch(url);
+			if (response.ok) {
+				return response;
+			}
+			lastError = new Error(`Open-Meteo API request failed with status ${response.status}`);
+		} catch (err) {
+			lastError = err instanceof Error ? err : new Error(String(err));
+		}
+
+		if (attempt < MAX_RETRIES) {
+			const backoffMs = INITIAL_BACKOFF_MS * 2 ** attempt;
+			await new Promise((resolve) => setTimeout(resolve, backoffMs));
+		}
+	}
+
+	throw lastError ?? new Error("Open-Meteo API request failed after retries");
+}
 
 export async function weatherModule(config: AppConfig): Promise<ModuleResult> {
 	const { latitude, longitude, label } = config.location;
@@ -19,12 +44,7 @@ export async function weatherModule(config: AppConfig): Promise<ModuleResult> {
 	});
 
 	const url = `${OPEN_METEO_BASE_URL}?${params.toString()}`;
-	const response = await fetch(url);
-
-	if (!response.ok) {
-		throw new Error(`Open-Meteo API request failed with status ${response.status}`);
-	}
-
+	const response = await fetchWithRetry(url);
 	const json = await response.json();
 
 	// Current conditions from the "current" response block

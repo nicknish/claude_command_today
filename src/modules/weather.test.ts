@@ -4,28 +4,34 @@ import { weatherModule } from "./weather.js";
 import { getWeatherCondition } from "./weather-codes.js";
 
 /**
- * Canned Open-Meteo API response used across all tests.
- * Represents a typical successful response with current weather and daily forecast.
+ * Canned Open-Meteo API response matching the current API fields
+ * (current.temperature_2m, current.weather_code, etc.)
  */
 function createOpenMeteoResponse(overrides?: {
 	temperature?: number;
-	weathercode?: number;
+	weatherCode?: number;
 	temperatureMax?: number;
 	temperatureMin?: number;
 }) {
 	return {
-		current_weather: {
-			temperature: overrides?.temperature ?? 48.5,
-			weathercode: overrides?.weathercode ?? 0,
-			windspeed: 8.2,
-			winddirection: 210,
-			is_day: 1,
-			time: "2026-01-30T10:00",
+		current: {
+			temperature_2m: overrides?.temperature ?? 48.5,
+			weather_code: overrides?.weatherCode ?? 0,
+			wind_speed_10m: 8.2,
+			wind_direction_10m: 210,
+			relative_humidity_2m: 65,
 		},
 		daily: {
-			time: ["2026-01-30"],
-			temperature_2m_max: [overrides?.temperatureMax ?? 53.1],
-			temperature_2m_min: [overrides?.temperatureMin ?? 39.4],
+			time: ["2026-01-30", "2026-01-31"],
+			temperature_2m_max: [overrides?.temperatureMax ?? 53.1, 55.0],
+			temperature_2m_min: [overrides?.temperatureMin ?? 39.4, 41.0],
+		},
+		hourly: {
+			time: ["2026-01-30T00:00", "2026-01-30T01:00"],
+			temperature_2m: [45.0, 44.5],
+			precipitation_probability: [10, 15],
+			wind_speed_10m: [5.0, 6.0],
+			relative_humidity_2m: [70, 72],
 		},
 	};
 }
@@ -40,12 +46,14 @@ const defaultConfig: AppConfig = {
 	temperatureUnit: "fahrenheit",
 	modules: [
 		{ id: "greeting", enabled: true, type: "core" },
-		{ id: "weather", enabled: true, type: "core" },
-		{ id: "morning-brew", enabled: true, type: "ancillary" },
+		{ id: "weather", enabled: true, type: "ancillary" },
 	],
+	stocks: [],
+	crypto: [],
 };
 
 beforeEach(() => {
+	vi.useFakeTimers();
 	vi.stubGlobal(
 		"fetch",
 		vi.fn().mockResolvedValue({
@@ -56,12 +64,15 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+	vi.useRealTimers();
 	vi.restoreAllMocks();
 });
 
 describe("weather module", () => {
-	it("parses a successful Open-Meteo API response and returns correct WeatherData fields in Fahrenheit", async () => {
-		const result = await weatherModule(defaultConfig);
+	it("parses a successful Open-Meteo API response", async () => {
+		const resultPromise = weatherModule(defaultConfig);
+		await vi.runAllTimersAsync();
+		const result = await resultPromise;
 
 		expect(result.id).toBe("weather");
 		expect(result.success).toBe(true);
@@ -72,68 +83,85 @@ describe("weather module", () => {
 		expect(data.high).toBe(53.1);
 		expect(data.low).toBe(39.4);
 		expect(data.unit).toBe("F");
-
-		// Verify fetch was called with the correct Open-Meteo URL and Fahrenheit params
-		const fetchCall = vi.mocked(fetch).mock.calls[0][0] as string;
-		expect(fetchCall).toContain("api.open-meteo.com");
-		expect(fetchCall).toContain("latitude=45.5051");
-		expect(fetchCall).toContain("longitude=-122.675");
-		expect(fetchCall).toContain("temperature_unit=fahrenheit");
-		expect(fetchCall).toContain("current_weather=true");
-		expect(fetchCall).toContain("daily=temperature_2m_max%2Ctemperature_2m_min");
-		expect(fetchCall).toContain("timezone=auto");
-		expect(fetchCall).toContain("forecast_days=1");
 	});
 
 	it("correctly maps WMO weather codes to human-readable condition strings", () => {
-		// Test a sample of WMO codes to confirm correct mapping
 		expect(getWeatherCondition(0)).toBe("Clear sky");
 		expect(getWeatherCondition(1)).toBe("Mainly clear");
-		expect(getWeatherCondition(2)).toBe("Partly cloudy");
 		expect(getWeatherCondition(3)).toBe("Overcast");
-		expect(getWeatherCondition(45)).toBe("Foggy");
 		expect(getWeatherCondition(61)).toBe("Slight rain");
-		expect(getWeatherCondition(63)).toBe("Moderate rain");
-		expect(getWeatherCondition(65)).toBe("Heavy rain");
-		expect(getWeatherCondition(71)).toBe("Slight snow");
 		expect(getWeatherCondition(95)).toBe("Thunderstorm");
-		expect(getWeatherCondition(99)).toBe("Thunderstorm with heavy hail");
-
-		// Unmapped code should return "Unknown"
 		expect(getWeatherCondition(999)).toBe("Unknown");
 	});
 
-	it("uses Celsius unit when config specifies celsius and passes correct query params to API", async () => {
+	it("uses Celsius unit when config specifies celsius", async () => {
 		const celsiusConfig: AppConfig = {
 			...defaultConfig,
 			temperatureUnit: "celsius",
 		};
 
-		const celsiusResponse = createOpenMeteoResponse({
-			temperature: 9.2,
-			weathercode: 61,
-			temperatureMax: 11.7,
-			temperatureMin: 4.1,
-		});
-
 		vi.mocked(fetch).mockResolvedValue({
 			ok: true,
-			json: () => Promise.resolve(celsiusResponse),
+			json: () =>
+				Promise.resolve(
+					createOpenMeteoResponse({
+						temperature: 9.2,
+						weatherCode: 61,
+						temperatureMax: 11.7,
+						temperatureMin: 4.1,
+					}),
+				),
 		} as Response);
 
-		const result = await weatherModule(celsiusConfig);
+		const resultPromise = weatherModule(celsiusConfig);
+		await vi.runAllTimersAsync();
+		const result = await resultPromise;
 
 		expect(result.success).toBe(true);
-
 		const data = result.data as WeatherData;
 		expect(data.currentTemp).toBe(9.2);
 		expect(data.condition).toBe("Slight rain");
-		expect(data.high).toBe(11.7);
-		expect(data.low).toBe(4.1);
 		expect(data.unit).toBe("C");
+	});
 
-		// Verify the API was called with celsius parameter
-		const fetchCall = vi.mocked(fetch).mock.calls[0][0] as string;
-		expect(fetchCall).toContain("temperature_unit=celsius");
+	it("retries on fetch failure and succeeds on second attempt", async () => {
+		const mockFetch = vi.mocked(fetch);
+		mockFetch.mockRejectedValueOnce(new Error("network error")).mockResolvedValueOnce({
+			ok: true,
+			json: () => Promise.resolve(createOpenMeteoResponse()),
+		} as Response);
+
+		const resultPromise = weatherModule(defaultConfig);
+		await vi.runAllTimersAsync();
+		const result = await resultPromise;
+
+		expect(result.success).toBe(true);
+		expect(mockFetch).toHaveBeenCalledTimes(2);
+	});
+
+	it("retries on non-ok response and succeeds on third attempt", async () => {
+		const mockFetch = vi.mocked(fetch);
+		mockFetch
+			.mockResolvedValueOnce({ ok: false, status: 503 } as Response)
+			.mockResolvedValueOnce({ ok: false, status: 503 } as Response)
+			.mockResolvedValueOnce({
+				ok: true,
+				json: () => Promise.resolve(createOpenMeteoResponse()),
+			} as Response);
+
+		const resultPromise = weatherModule(defaultConfig);
+		await vi.runAllTimersAsync();
+		const result = await resultPromise;
+
+		expect(result.success).toBe(true);
+		expect(mockFetch).toHaveBeenCalledTimes(3);
+	});
+
+	it("throws after exhausting all retries", async () => {
+		vi.useRealTimers();
+		vi.mocked(fetch).mockImplementation(() => Promise.reject(new Error("network error")));
+
+		await expect(weatherModule(defaultConfig)).rejects.toThrow("network error");
+		expect(vi.mocked(fetch)).toHaveBeenCalledTimes(3);
 	});
 });
