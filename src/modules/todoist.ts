@@ -1,6 +1,6 @@
 import type { AppConfig, ModuleResult, TodoistModuleData, TodoistTask } from "../types.js";
 
-const TODOIST_BASE = "https://api.todoist.com/rest/v2";
+const TODOIST_BASE = "https://api.todoist.com/api/v1";
 const TODOIST_FILTER = "(overdue | today) & p1";
 
 function getApiKey(): string {
@@ -26,10 +26,14 @@ type TodoistApiTask = {
 	description: string;
 	priority: number;
 	due: TodoistDue | null;
-	url: string;
-	created_at: string;
+	added_at: string;
 	project_id: string;
 	labels: string[];
+};
+
+type TodoistApiResponse = {
+	results: TodoistApiTask[];
+	next_cursor: string | null;
 };
 
 function getDueTimestamp(due: TodoistDue | null): number | null {
@@ -67,11 +71,11 @@ function mapTask(task: TodoistApiTask, now: Date): TodoistTask {
 		dueDate: task.due?.date ?? null,
 		dueDatetime: task.due?.datetime ?? null,
 		dueTimezone: task.due?.timezone ?? null,
-		url: task.url,
-		createdAt: task.created_at,
+		url: `https://app.todoist.com/app/task/${task.id}`,
+		createdAt: task.added_at,
 		projectId: task.project_id,
 		labels: task.labels ?? [],
-		isOlderThanTwoWeeks: isOlderThanTwoWeeks(task.created_at, now),
+		isOlderThanTwoWeeks: isOlderThanTwoWeeks(task.added_at, now),
 	};
 }
 
@@ -88,7 +92,8 @@ async function fetchTodoistTasks(apiKey: string): Promise<TodoistApiTask[]> {
 		throw new Error(`Todoist /tasks request failed with status ${response.status}`);
 	}
 
-	return (await response.json()) as TodoistApiTask[];
+	const body = (await response.json()) as TodoistApiResponse;
+	return body.results;
 }
 
 export async function todoistModule(_config: AppConfig): Promise<ModuleResult> {
