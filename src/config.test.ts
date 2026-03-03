@@ -14,7 +14,7 @@ const fullConfig = {
 	temperatureUnit: "celsius" as const,
 	modules: [
 		{ id: "greeting", enabled: true, type: "core" as const },
-		{ id: "weather", enabled: false, type: "core" as const },
+		{ id: "weather", enabled: false, type: "ancillary" as const },
 		{ id: "stocks", enabled: true, type: "ancillary" as const },
 		{ id: "news", enabled: true, type: "ancillary" as const },
 	],
@@ -31,7 +31,7 @@ const defaults = {
 	temperatureUnit: "fahrenheit",
 	modules: [
 		{ id: "greeting", enabled: true, type: "core" },
-		{ id: "weather", enabled: true, type: "core" },
+		{ id: "weather", enabled: true, type: "ancillary" },
 		{ id: "stocks", enabled: true, type: "ancillary" },
 		{ id: "crypto", enabled: true, type: "ancillary" },
 		{ id: "news", enabled: true, type: "ancillary" },
